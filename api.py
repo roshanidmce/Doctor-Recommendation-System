@@ -55,9 +55,10 @@ def predict():
     doctor_Experience = int(request.form.get("experience"))
 
     doctor_Awards_Points = int(request.values.get("rating"))
-
+    Experience_Normalised = doctor_Experience/70
+    Awards_Point_Normalised = doctor_Awards_Points/100
     predicted_user = km.predict(
-        [[doctor_Experience, doctor_Awards_Points]])
+        [[Experience_Normalised, Awards_Point_Normalised]])
     final = []
     if(predicted_user < 4):  # for outliers
         for i in range((df.shape[0])):
@@ -66,9 +67,14 @@ def predict():
 
     hi=[]
     if(len(final)):
+        for i in final:
+            x = {"Name": i["Name"], "Specialisation": i["Specialisation"],
+                 "City": i["City"],"Address":i["Hospital/Clinic"],"Experience": i["Experience"], "Award": i["Awards"]}
             hi.append(x)
+    else:
+        return({"final": "Your Doctor is the best in your Area."})
     return render_template('index.html', prediction_text=hi)
 
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(host='0.0.0.0',port=8080)
